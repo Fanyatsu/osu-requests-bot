@@ -5,7 +5,8 @@ import threading
 import logging
 import irc.bot
 from twitchio.ext import commands
-from ossapi import OssapiV2
+from twitchio import Message
+from ossapi import OssapiV2, Beatmap, Beatmapset, User
 from irc.client import Event, ServerConnection
 from config import settings
 
@@ -71,7 +72,7 @@ def parse_profile_from_string(string: str):
         logging.error(f'A request to osu API was unsuccessful - {e}')
 
 
-def get_beatmap_variables(beatmap, beatmapset):
+def get_beatmap_variables(beatmap: Beatmap, beatmapset: Beatmapset):
     version = beatmap.version
     status = beatmap.status.name.capitalize()
     rating = beatmap.difficulty_rating
@@ -80,21 +81,21 @@ def get_beatmap_variables(beatmap, beatmapset):
 
     return version, status, rating, artist, title
 
-def get_profile_variables(user):
+def get_profile_variables(user: User):
     name = user.username
     global_rank = user.statistics.global_rank
     country = user.country_code
     country_rank = user.statistics.country_rank
-    pp = int(user.statistics.pp)
+    pp = round(user.statistics.pp)
 
     return name, global_rank, country, country_rank, pp
 
 
-async def handle_request(self, message):
+async def handle_request(self, message: Message):
     if settings.SKIP_CHANNEL_OWNER_REQUESTS and message.author.name == message.channel.name:
-        return logging.info(f'Skipping request handling from channel owner {message.author.name}')
+        return logging.debug(f'Skipping request handling from channel owner {message.author.name}')
     if message.author.name in settings.TTV_IGNORE_LIST:
-        return logging.info(f'Skipping request handling from ignored user {message.author.name}')
+        return logging.debug(f'Skipping request handling from ignored user {message.author.name}')
 
     beatmap_objects = parse_beatmap_objects_from_string(message.content)
     if beatmap_objects:
@@ -106,6 +107,7 @@ async def handle_request(self, message):
         next_request = self.last_request + settings.PER_MESSAGE_COOLDOWN
         if current_time < next_request:
             time_to_sleep = next_request - current_time
+            logging.debug(f'Deferring In-Game request delivery for {time_to_sleep} seconds')
             await asyncio.sleep(time_to_sleep)
         self.last_request = current_time
 
@@ -114,7 +116,7 @@ async def handle_request(self, message):
             f"Request from {message.author.name} » [https://osu.ppy.sh/b/{beatmap.id} {artist} - {title} [{version}]] ★ {rating} ({status})"
         )
 
-async def handle_profile(message):
+async def handle_profile(message: Message):
     profile = parse_profile_from_string(message.content)
     if profile:
         name, global_rank, country, country_rank, pp = get_profile_variables(profile)
@@ -137,8 +139,6 @@ class TwitchBot(commands.Bot):
 
     async def event_message(self, message):
         if not message.author:
-            return
-        if message.author.name == self.nick:
             return
 
         await handle_request(self, message)

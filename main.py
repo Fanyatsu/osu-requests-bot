@@ -12,8 +12,8 @@ from config import settings
 
 
 LOG_FILENAME = "osurequests.log"
-LOG_FORMAT = '%(asctime)s | %(levelname)s | %(message)s'
-LOG_DATE_FORMAT = '%d.%m.%Y %H:%M:%S'
+LOG_FORMAT = "%(asctime)s | %(levelname)s | %(message)s"
+LOG_DATE_FORMAT = "%d.%m.%Y %H:%M:%S"
 
 logging.basicConfig(
     format=LOG_FORMAT,
@@ -57,7 +57,7 @@ def parse_beatmap_objects_from_string(string: str):
                 beatmap = beatmapset.beatmaps[0]
             return beatmap, beatmapset
         except Exception as e:
-            logging.error(f'A request to osu API was unsuccessful - {e}')
+            logging.error(f"A request to osu API was unsuccessful - {e}")
 
 def parse_profile_from_string(string: str):
     match = re.search(osu_profile_pattern, string)
@@ -69,7 +69,7 @@ def parse_profile_from_string(string: str):
         user = osu_api_v2.user(user_id)
         return user
     except Exception as e:
-        logging.error(f'A request to osu API was unsuccessful - {e}')
+        logging.error(f"A request to osu API was unsuccessful - {e}")
 
 
 def get_beatmap_variables(beatmap: Beatmap, beatmapset: Beatmapset):
@@ -93,9 +93,9 @@ def get_profile_variables(user: User):
 
 async def handle_request(self, message: Message):
     if settings.SKIP_CHANNEL_OWNER_REQUESTS and message.author.name == message.channel.name:
-        return logging.debug(f'Skipping request handling from channel owner {message.author.name}')
+        return logging.debug(f"Skipping request handling from channel owner {message.author.name}")
     if message.author.name in settings.TTV_IGNORE_LIST:
-        return logging.debug(f'Skipping request handling from ignored user {message.author.name}')
+        return logging.debug(f"Skipping request handling from ignored user {message.author.name}")
 
     beatmap_objects = parse_beatmap_objects_from_string(message.content)
     if beatmap_objects:
@@ -107,7 +107,7 @@ async def handle_request(self, message: Message):
         next_request = self.last_request + settings.PER_MESSAGE_COOLDOWN
         if current_time < next_request:
             time_to_sleep = next_request - current_time
-            logging.debug(f'Deferring In-Game request delivery for {time_to_sleep} seconds')
+            logging.debug(f"Deferring In-Game request delivery for {time_to_sleep} seconds")
             await asyncio.sleep(time_to_sleep)
         self.last_request = current_time
 
@@ -135,7 +135,7 @@ class TwitchBot(commands.Bot):
         super().run()
 
     async def event_ready(self):
-        logging.info(f'Connected to Twitch as {self.nick} (UID: {self.user_id})')
+        logging.info(f"Connected to Twitch as {self.nick} (UID: {self.user_id})")
 
     async def event_message(self, message):
         if not message.author:

@@ -57,7 +57,7 @@ def parse_beatmap_objects_from_string(string: str):
                 beatmap = beatmapset.beatmaps[0]
             return beatmap, beatmapset
         except Exception as e:
-            logging.error(f"A request to osu API was unsuccessful - {e}")
+            logging.error(e, exc_info=e, stack_info=True)
 
 def parse_profile_from_string(string: str):
     match = re.search(OSU_PROFILE_PATTERN, string)
@@ -69,7 +69,7 @@ def parse_profile_from_string(string: str):
         user = osu_api_v2.user(user_id)
         return user
     except Exception as e:
-        logging.error(f"A request to osu API was unsuccessful - {e}")
+        logging.error(e, exc_info=e, stack_info=True)
 
 
 def get_beatmap_variables(beatmap: Beatmap, beatmapset: Beatmapset):

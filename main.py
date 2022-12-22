@@ -28,21 +28,21 @@ logging.getLogger("ossapi").setLevel(logging.WARN)
 
 osu_api_v2 = OssapiV2(settings.OSU_CLIENT_ID, settings.OSU_CLIENT_SECRET)
 
-osu_beatmap_patterns = {
-    "beatmap_official" : r"https?:\/\/osu.ppy.sh\/beatmapsets\/[0-9]+\#(osu|taiko|fruits|mania)\/([0-9]+)",     #Group 2
-    "beatmap_old" : r"https?:\/\/(osu|old).ppy.sh\/b\/([0-9]+)",                                                #Group 2
-    "beatmap_alternate" : r"https?:\/\/osu.ppy.sh\/beatmaps\/([0-9]+)",                                         #Group 1
-    "beatmap_old_alternate" : r"https?:\/\/(osu|old).ppy.sh\/p\/beatmap\?b=([0-9]+)",                           #Group 2
-    "beatmapset_official" : r"https?:\/\/osu.ppy.sh\/beatmapsets\/([0-9]+)",                                    #Group 1
-    "beatmapset_old" : r"https?:\/\/(osu|old).ppy.sh\/s\/([0-9]+)",                                             #Group 2
-    "beatmapset_old_alternate" : r"https?:\/\/(osu|old).ppy.sh\/p\/beatmap\?s=([0-9]+)",                        #Group 2
+OSU_BEATMAP_PATTERNS = {
+    "beatmap_official" : re.compile(r"(?:https?:\/\/)?osu.ppy.sh\/beatmapsets\/[0-9]+\#(osu|taiko|fruits|mania)\/([0-9]+)"),
+    "beatmap_old" : re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/b\/([0-9]+)"),
+    "beatmap_alternate" : re.compile(r"(?:https?:\/\/)?osu.ppy.sh\/beatmaps\/([0-9]+)"),
+    "beatmap_old_alternate" : re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/p\/beatmap\?b=([0-9]+)"),
+    "beatmapset_official" : re.compile(r"(?:https?:\/\/)?osu.ppy.sh\/beatmapsets\/([0-9]+)"),
+    "beatmapset_old" : re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/s\/([0-9]+)"),
+    "beatmapset_old_alternate" : re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/p\/beatmap\?s=([0-9]+)"),
 }
 
-osu_profile_pattern = r"https?:\/\/(osu|old).ppy.sh\/(u|users)\/([^\s]+)"                                       #Group 3
+OSU_PROFILE_PATTERN = r"(?:https?:\/\/)?(osu|old).ppy.sh\/(u|users)\/([^\s]+)"
 
 
 def parse_beatmap_objects_from_string(string: str):
-    for link_type, pattern in osu_beatmap_patterns.items():
+    for link_type, pattern in OSU_BEATMAP_PATTERNS.items():
         match = re.search(pattern, string)
         if not match:
             continue
@@ -60,7 +60,7 @@ def parse_beatmap_objects_from_string(string: str):
             logging.error(f"A request to osu API was unsuccessful - {e}")
 
 def parse_profile_from_string(string: str):
-    match = re.search(osu_profile_pattern, string)
+    match = re.search(OSU_PROFILE_PATTERN, string)
     if not match:
         return
 

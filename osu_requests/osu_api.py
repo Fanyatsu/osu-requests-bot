@@ -22,7 +22,7 @@ OSU_BEATMAPS_PATTERNS = {
     "beatmapset_old_alternate" : re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/p\/beatmap\?s=([0-9]+)")
 }
 
-OSU_USERS_PATTERN = r"(?:https?:\/\/)?(osu|old).ppy.sh\/(u|users)\/([^\s]+)"
+OSU_USERS_PATTERN = re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/(u|users)\/([^\s]+)")
 
 
 def get_beatmap_objects(text):

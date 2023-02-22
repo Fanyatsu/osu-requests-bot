@@ -30,5 +30,8 @@ Very simple osu! beatmap requests bot for Twitch streamers written in Python usi
 ⁉️ **Websocket connection was closed: None**  
 🟢 If you see this during startup, restart the bot
 
+⁉️ **Bot does not respond to chat links on Twitch**  
+🟢 Make the bot a channel moderator or disable follow/sub chat mode
+
 ## Support
 Please let me know if you have any questions - www.fanyat.su

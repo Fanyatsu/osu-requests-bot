@@ -9,6 +9,7 @@ Very simple osu! beatmap requests bot for Twitch streamers written in Python usi
 ## Features
 * Sending beatmap links from Twitch chat to In-Game osu! messages
 * Responding to beatmap and profile links with general information
+* Support for mods in beatmap requests (with star rate recalculation)
 * Skipping requests handling from channel owner and users from ignore list
 * Cooldown between In-Game osu! messages to avoid getting restricted
 

@@ -1,6 +1,6 @@
 import re
 import logging
-from ossapi import Ossapi
+from ossapi import Ossapi, Mod
 from config import settings
 
 
@@ -22,6 +22,8 @@ OSU_BEATMAPS_PATTERNS = {
 
 OSU_USERS_PATTERN = re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/(u|users)\/([^\s]+)")
 
+OSU_MODS_PATTERN = re.compile(rf"(?<=\+)(?i)(?:{'|'.join(f'({mod.long_name()}|{mod.short_name()})' for mod in Mod.ORDER[:15])})+")
+
 
 def get_beatmap_objects(text):
     for link_type, pattern in OSU_BEATMAPS_PATTERNS.items():
@@ -41,10 +43,17 @@ def get_beatmap_objects(text):
         except Exception as e:
             logging.error(e, exc_info=e, stack_info=True)
 
-def get_beatmap_data(beatmap, beatmapset):
+def get_beatmap_data(beatmap, beatmapset, mods_object=None):
     url = f"https://osu.ppy.sh/b/{beatmap.id}"
     name = f"{beatmapset.artist} - {beatmapset.title} [{beatmap.version}]"
-    star_rating = beatmap.difficulty_rating
+
+    if not mods_object:
+        star_rating = beatmap.difficulty_rating
+    else:
+        attributes = api_v2.beatmap_attributes(beatmap.id, mods=mods_object).attributes
+        star_rating = attributes.star_rating
+
+    star_rating = round(star_rating, 2)
     status = beatmap.status.name.capitalize() if beatmap.status.value != -1 else beatmap.status.name
 
     return url, name, star_rating, status
@@ -70,3 +79,21 @@ def get_user_data(user):
     pp = round(user.statistics.pp)
 
     return gamemode, name, global_rank, country, country_rank, pp
+
+def get_mods_object(text, mods_string=""):
+    result = re.search(OSU_MODS_PATTERN, text)
+    if not result:
+        return
+
+    for mod_name in result.groups():
+        if not mod_name:
+            continue
+
+        mod_name = mod_name.upper()
+        if len(mod_name) > 2:
+            idx = [mod.long_name().upper() for mod in Mod.ORDER].index(mod_name)
+            mod_name = Mod.ORDER[idx].short_name()
+
+        mods_string += mod_name
+
+    return Mod(mods_string)

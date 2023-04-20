@@ -8,9 +8,7 @@ logging.getLogger("ossapi").setLevel(logging.WARN)
 
 api_v2 = Ossapi(settings.OSU_CLIENT_ID, settings.OSU_CLIENT_SECRET)
 
-OSU_GAMEMODES_PREFIXES = {
-    "mania": "🎹", "taiko": "🥁", "fruits": "🍏"
-}
+OSU_GAMEMODES_PREFIXES = {"mania": "🎹", "taiko": "🥁", "fruits": "🍏"}
 
 OSU_BEATMAPS_PATTERNS = {
     "beatmap_official" : re.compile(r"(?:https?:\/\/)?osu.ppy.sh\/beatmapsets\/[0-9]+\#(osu|taiko|fruits|mania)\/([0-9]+)"),

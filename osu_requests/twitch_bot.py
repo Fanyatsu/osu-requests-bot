@@ -10,7 +10,7 @@ from config import settings
 class TwitchBot(commands.Bot):
     def __init__(self):
         self.channels = {key.lower(): value for key, value in settings.TTV_CHANNELS.items()}
-        super().__init__(token=settings.TTV_ACCESS_TOKEN, prefix="!", initial_channels=self.channels)
+        super().__init__(token=settings.TTV_ACCESS_TOKEN, prefix="!", initial_channels=[*self.channels])
         self.irc_bot = IrcBot(settings.OSU_IRC_USERNAME, settings.OSU_IRC_SERVER, password=settings.OSU_IRC_PASSWORD)
         self.irc_bot_thread = threading.Thread(target=self.irc_bot.start)
         self.irc_messages_queue = asyncio.Queue()

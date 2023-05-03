@@ -37,14 +37,14 @@ class TwitchBot(commands.Bot):
         if message.author.name in settings.TTV_IGNORE_LIST:
             return logging.debug(f"Skipping request handling from ignored user {message.author.name}")
 
-        beatmap_objects = osu_api.get_beatmap_objects(message.content)
+        beatmap_objects = await osu_api.get_beatmap_objects(message.content)
         if not beatmap_objects:
             return
 
         mods_object = osu_api.get_mods_object(message.content)
         mods = f"+{mods_object.short_name()}" if mods_object else ""
 
-        url, name, star_rating, status = osu_api.get_beatmap_data(*beatmap_objects, mods_object)
+        url, name, star_rating, status = await osu_api.get_beatmap_data(*beatmap_objects, mods_object)
 
         await message.channel.send(f"[{status}] {name} {mods} ★ {star_rating}")
 
@@ -56,7 +56,7 @@ class TwitchBot(commands.Bot):
         )
 
     async def handle_profile(self, message):
-        user = osu_api.get_user_object(message.content)
+        user = await osu_api.get_user_object(message.content)
         if not user:
             return
 

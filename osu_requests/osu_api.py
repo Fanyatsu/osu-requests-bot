@@ -1,12 +1,12 @@
 import re
 import logging
-from ossapi import Ossapi, Mod
+from ossapi import OssapiAsync, Mod
 from config import settings
 
 
 logging.getLogger("ossapi").setLevel(logging.WARN)
 
-api_v2 = Ossapi(settings.OSU_CLIENT_ID, settings.OSU_CLIENT_SECRET)
+api_v2 = OssapiAsync(settings.OSU_CLIENT_ID, settings.OSU_CLIENT_SECRET)
 
 OSU_GAMEMODES_PREFIXES = {"mania": "🎹", "taiko": "🥁", "fruits": "🍏"}
 
@@ -25,7 +25,7 @@ OSU_USERS_PATTERN = re.compile(r"(?:https?:\/\/)?(osu|old).ppy.sh\/(u|users)\/([
 OSU_MODS_PATTERN = re.compile(rf"(?<=\+)(?i)(?:{'|'.join(f'({mod.long_name()}|{mod.short_name()})' for mod in Mod.ORDER[:15])})+")
 
 
-def get_beatmap_objects(text):
+async def get_beatmap_objects(text):
     for link_type, pattern in OSU_BEATMAPS_PATTERNS.items():
         match = re.search(pattern, text)
         if not match:
@@ -34,38 +34,38 @@ def get_beatmap_objects(text):
         bm_id = match.groups()[-1]
         try:
             if "beatmap_" in link_type:
-                beatmap = api_v2.beatmap(bm_id)
-                beatmapset = api_v2.beatmapset(beatmap)
+                beatmap = await api_v2.beatmap(bm_id)
+                beatmapset = await api_v2.beatmapset(beatmap)
             elif "beatmapset_" in link_type:
-                beatmapset = api_v2.beatmapset(bm_id)
+                beatmapset = await api_v2.beatmapset(bm_id)
                 beatmap = beatmapset.beatmaps[0]
             return beatmap, beatmapset
         except Exception as e:
             logging.error(e, exc_info=e, stack_info=True)
 
-def get_beatmap_data(beatmap, beatmapset, mods_object=None):
+async def get_beatmap_data(beatmap, beatmapset, mods_object=None):
     url = f"https://osu.ppy.sh/b/{beatmap.id}"
     name = f"{beatmapset.artist} - {beatmapset.title} [{beatmap.version}]"
 
     if not mods_object:
         star_rating = beatmap.difficulty_rating
     else:
-        attributes = api_v2.beatmap_attributes(beatmap.id, mods=mods_object).attributes
-        star_rating = attributes.star_rating
+        beatmap_attributes = await api_v2.beatmap_attributes(beatmap.id, mods=mods_object)
+        star_rating = beatmap_attributes.attributes.star_rating
 
     star_rating = round(star_rating, 2)
     status = beatmap.status.name.capitalize() if beatmap.status.value != -1 else beatmap.status.name
 
     return url, name, star_rating, status
 
-def get_user_object(text):
+async def get_user_object(text):
     match = re.search(OSU_USERS_PATTERN, text)
     if not match:
         return
 
     user_id = match.group(3)
     try:
-        user = api_v2.user(user_id)
+        user = await api_v2.user(user_id)
         return user
     except Exception as e:
         logging.error(e, exc_info=e, stack_info=True)

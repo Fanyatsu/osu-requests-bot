@@ -43,14 +43,14 @@ class TwitchBot(commands.Bot):
         mods_object = osu_api.get_mods_object(message.content)
         mods = f"+{mods_object.short_name()}" if mods_object else ""
 
-        url, name, star_rating, status = await osu_api.get_beatmap_data(*beatmap_objects, mods_object)
+        url, name, star_rating, status, mirror_url = await osu_api.get_beatmap_data(*beatmap_objects, mods_object)
 
         await message.channel.send(f"[{status}] {name} {mods} ★ {star_rating}")
 
         self.irc_bot.messages_queue.put_nowait(
             (
                 self.channels[message.channel.name],
-                f"Request from {message.author.name} » [{url} {name}] {mods} ★ {star_rating} ({status})"
+                f"Request from {message.author.name} » [{url} {name}] {mods} ★ {star_rating} ({status}) | [{mirror_url} mirror dl]"
             )
         )
 

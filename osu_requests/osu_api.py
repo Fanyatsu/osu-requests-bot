@@ -55,8 +55,9 @@ async def get_beatmap_data(beatmap, beatmapset, mods_object=None):
 
     star_rating = round(star_rating, 2)
     status = beatmap.status.name.capitalize() if beatmap.status.value != -1 else beatmap.status.name
+    mirror_url = f"https://api.chimu.moe/v1/download/{beatmapset.id}"
 
-    return url, name, star_rating, status
+    return url, name, star_rating, status, mirror_url
 
 async def get_user_object(text):
     match = re.search(OSU_USERS_PATTERN, text)

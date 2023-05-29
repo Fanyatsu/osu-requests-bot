@@ -13,7 +13,6 @@ class TwitchBot(commands.Bot):
         super().__init__(token=settings.TTV_ACCESS_TOKEN, prefix="!", initial_channels=[*self.channels])
         self.irc_bot = IrcBot(settings.OSU_IRC_USERNAME, settings.OSU_IRC_SERVER, password=settings.OSU_IRC_PASSWORD)
         self.irc_bot_thread = threading.Thread(target=self.irc_bot.start)
-        self.irc_messages_queue = asyncio.Queue()
 
     def run(self):
         self.irc_bot_thread.start()
@@ -48,7 +47,7 @@ class TwitchBot(commands.Bot):
 
         await message.channel.send(f"[{status}] {name} {mods} ★ {star_rating}")
 
-        self.irc_messages_queue.put_nowait(
+        self.irc_bot.messages_queue.put_nowait(
             (
                 self.channels[message.channel.name],
                 f"Request from {message.author.name} » [{url} {name}] {mods} ★ {star_rating} ({status})"
@@ -65,7 +64,7 @@ class TwitchBot(commands.Bot):
 
     @routines.routine()
     async def irc_messages_queue_worker(self):
-        target, text = await self.irc_messages_queue.get()
+        target, text = await self.irc_bot.messages_queue.get()
         self.irc_bot.send_message(target, text)
 
         await asyncio.sleep(settings.PER_MESSAGE_COOLDOWN)

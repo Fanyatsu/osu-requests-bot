@@ -39,3 +39,8 @@ Very simple osu! beatmap requests bot for Twitch streamers written in Python usi
 
 ## Support
 Please let me know if you have any questions - www.fanyat.su
+
+## Credits
+[aticie](https://github.com/aticie) - Main idea, IRC code, beatmap links patterns\
+[tybug](https://github.com/tybug) - Help & enhancements in ossapi library\
+[aeongdesu](https://github.com/aeongdesu) - Mirror download links idea

@@ -13,7 +13,7 @@ class IrcBot(SingleServerIRCBot):
     def on_welcome(self, c: ServerConnection, e: Event):
         logging.info(f"Connected to osu!IRC server as {self._nickname}")
 
-    def send_message(self, target, text):
+    def send_message(self, target: str, text: str):
         target = target.replace(" ", "_")
         self.connection.privmsg(target, text)
         logging.info(f"In-Game message was successfully sent to {target}")

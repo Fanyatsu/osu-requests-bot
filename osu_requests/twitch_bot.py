@@ -1,9 +1,13 @@
-import threading
 import asyncio
 import logging
-from twitchio.ext import commands, routines
+from threading import Thread
+from typing import Union
+from ossapi import Mod
 from osu_requests.irc_bot import IrcBot
-from osu_requests import osu_api
+from osu_requests.osu_api import OsuAPIv2, BeatmapData, UserData
+from osu_requests.osu_api import parse_mods_string, get_user_data, format_mods
+from twitchio import Message, Channel, Chatter, PartialChatter
+from twitchio.ext import commands, routines
 from config import settings
 
 
@@ -12,7 +16,8 @@ class TwitchBot(commands.Bot):
         self.channels = {key.lower(): value for key, value in settings.TTV_CHANNELS.items()}
         super().__init__(token=settings.TTV_ACCESS_TOKEN, prefix="!", initial_channels=[*self.channels])
         self.irc_bot = IrcBot(settings.OSU_IRC_USERNAME, settings.OSU_IRC_SERVER, password=settings.OSU_IRC_PASSWORD)
-        self.irc_bot_thread = threading.Thread(target=self.irc_bot.start)
+        self.irc_bot_thread = Thread(target=self.irc_bot.start)
+        self.osu_api_v2 = OsuAPIv2(settings.OSU_CLIENT_ID, settings.OSU_CLIENT_SECRET)
 
     def run(self):
         self.irc_bot_thread.start()
@@ -22,45 +27,56 @@ class TwitchBot(commands.Bot):
     async def event_ready(self):
         logging.info(f"Connected to Twitch as {self.nick} (UID: {self.user_id})")
 
-    async def event_message(self, message):
+    async def event_message(self, message: Message):
         if not message.author:
             return
 
         await self.handle_request(message)
         await self.handle_profile(message)
 
-    async def handle_request(self, message):
+    async def handle_request(self, message: Message):
         if message.author.name == message.channel.name and settings.SKIP_CHANNEL_OWNER_REQUESTS:
             return logging.debug(f"Skipping request handling from channel owner {message.author.name}")
 
         if message.author.name in settings.TTV_IGNORE_LIST:
             return logging.debug(f"Skipping request handling from ignored user {message.author.name}")
 
-        beatmap_objects = await osu_api.get_beatmap_objects(message.content)
-        if not beatmap_objects:
+        results = await self.osu_api_v2.parse_beatmap_url(message.content)
+        if not results:
             return
 
-        mods_object = osu_api.get_mods_object(message.content)
-        mods = f"+{mods_object.short_name()}" if mods_object else ""
+        mods = parse_mods_string(message.content)
+        data = await self.osu_api_v2.get_beatmap_data(*results, mods)
 
-        url, name, star_rating, status, mirror_url = await osu_api.get_beatmap_data(*beatmap_objects, mods_object)
+        await self.send_request(data, mods, message.author, message.channel)
 
-        await message.channel.send(f"[{status}] {name} {mods} ★ {star_rating}")
-
-        self.irc_bot.messages_queue.put_nowait(
-            (
-                self.channels[message.channel.name],
-                f"Request from {message.author.name} » [{url} {name}] {mods} ★ {star_rating} ({status}) | [{mirror_url} mirror dl]"
-            )
-        )
-
-    async def handle_profile(self, message):
-        user = await osu_api.get_user_object(message.content)
+    async def handle_profile(self, message: Message):
+        user = await self.osu_api_v2.parse_user_url(message.content)
         if not user:
             return
 
-        gamemode, name, global_rank, country, country_rank, pp = osu_api.get_user_data(user)
-        await message.channel.send(f"{gamemode} {name} - #{global_rank} ({country}: #{country_rank}) {pp}pp")
+        data = get_user_data(user)
+        await self.send_profile(data, message.channel)
+
+    async def send_request(self, data: BeatmapData, mods: Mod, author: Union[Chatter, PartialChatter], channel: Channel):
+        difficulty_params = f"{format_mods(mods)} ★ {data.star_rating:.2f}"
+
+        twitch_message = f"[{data.status}] {data.name} {difficulty_params}"
+        irc_message = (
+            f"{author.name} » [{data.url} {data.name}] {difficulty_params} "
+            f"⏰ {data.duration} ♫ {data.bpm:g} ({data.status}) [{data.mirror_url} mirror dl]"
+        )
+
+        await channel.send(twitch_message)
+        self.irc_bot.messages_queue.put_nowait((self.channels[channel.name], irc_message))
+
+    async def send_profile(self, data: UserData, channel: Channel):
+        twitch_message = (
+            f"{data.gamemode} {data.name} - #{data.global_rank or 0} "
+            f"({data.country}: #{data.country_rank or 0}) {round(data.pp)}pp"
+        )
+
+        await channel.send(twitch_message)
 
     @routines.routine()
     async def irc_messages_queue_worker(self):

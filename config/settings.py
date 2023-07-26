@@ -11,13 +11,13 @@ TTV_IGNORE_LIST = []
 TTV_CHANNELS = {}
 
 # Username and IRC password of your osu! bot account
-# Located at: https://osu.ppy.sh/p/irc
+# Get here: https://osu.ppy.sh/home/account/edit#legacy-api
 OSU_IRC_USERNAME = ""
 OSU_IRC_PASSWORD = ""
 OSU_IRC_SERVER = "irc.ppy.sh"
 
 # Client ID and Client Secret of your osu! OAuth application
-# Create your own here: https://osu.ppy.sh/home/account/edit
+# Create here: https://osu.ppy.sh/home/account/edit#oauth
 OSU_CLIENT_ID = ""
 OSU_CLIENT_SECRET = ""
 

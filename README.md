@@ -2,16 +2,35 @@
 Very simple osu! beatmap requests bot for Twitch streamers written in Python using ossapi, twitchio and irc libraries
 > This project was inspired by **Ronnia** bot. Take a look: https://github.com/aticie/ronnia
 
-## Screenshots
-![Beatmap Link Handling](https://i.imgur.com/xDEWtr3.png) ![Profile Link Handling](https://i.imgur.com/c0Qck7S.png)
-![In-Game osu! Message](https://i.imgur.com/K9E5B2b.png)
-
 ## Features
 * Sending beatmap links from Twitch chat to In-Game osu! messages
 * Responding to beatmap and profile links with general information
 * Support for mods in beatmap requests (with star rate recalculation)
 * Skipping requests handling from channel owner and users from ignore list
 * Cooldown between In-Game osu! messages to avoid getting restricted
+
+## Screenshots
+[Click here to view via Imgur](https://imgur.com/a/yQhbRuR) or use spoilers below
+<details>
+  <summary>1. Beatmap request on Twitch</summary>
+  
+  ![Beatmap request on Twitch](https://i.imgur.com/upfYU3B.png)
+</details>
+<details>
+  <summary>2. Beatmap request on Twitch (with mods)</summary>
+  
+  ![Beatmap request on Twitch (with mods)](https://i.imgur.com/aIkvASr.png)
+</details>
+<details>
+  <summary>3. Profile links handling</summary>
+  
+  ![Profile links handling](https://i.imgur.com/IGX1vYy.png)
+</details>
+<details>
+  <summary>4. In-Game osu! messages</summary>
+  
+  ![In-Game osu! messages](https://i.imgur.com/cI7Fops.png)
+</details>
 
 ## Setup
 > **Warning**

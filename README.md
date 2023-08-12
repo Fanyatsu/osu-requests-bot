@@ -44,17 +44,42 @@ Very simple osu! beatmap requests bot for Twitch streamers written in Python usi
 4. Finally, run the bot using `run.py` file in the main directory
 
 ## Troubleshooting
-**Q:** [Errno 13] Permission denied: osu_requests.log\
-**A:** Grant your user write permissions to the log file
+<details>
+  <summary>Errno 13 "Permission denied"</summary>
+  
+  Grant your user write permissions to the `osu_requests.log` file
+</details>
+<details>
+  <summary>Websocket connection was closed: None</summary>
+  
+  This message appears each time Twitch WS connection is lost (usually at RECONNECT events)\
+  If you see it during startup, restart the bot
+</details>
+<details>
+  <summary>Bot does not respond to links on Twitch chat</summary>
+  
+  Twitch can reject messages if you have enabled one of `follower-only` / `subscriber-only` / `emote-only` chat modes\
+  Disable conflicting feature or make the bot either a channel moderator or VIP. Moderators and VIPs bypass restrictions\
+  If its still not working, check the next option
+</details>
+<details>
+  <summary>My requests are ignored when sent to my own chat</summary>
+  
+  ```python
+  # config/settings.py
 
-**Q:** Websocket connection was closed: None\
-**A:** If you see this during startup, restart the bot
-
-**Q:** Bot does not respond to links on Twitch chat\
-**A:** Make the bot a channel moderator or disable follow/sub chat mode
-
-**Q:** My requests are ignored when sent to my own Twitch chat\
-**A:** Change "Skip channel owner requests" config option to False
+  # Whether to skip (ignore) requests from Twitch channel owner
+  # Skip - True | Don't skip - False
+  SKIP_CHANNEL_OWNER_REQUESTS = False
+  ```
+</details>
+<details>
+  <summary>There is a delay between requests and responses</summary>
+  
+  Typically it takes from 0.5 to 1.5 seconds for the bot to respond. If you are experiencing longer intervals, continue reading.\
+  **Twitch:** Check "Non-moderator chat delay" option under the "Moderation" settings section of your channel\
+  **osu!:** Known issue that is already fixed on Lazer. See https://osu.ppy.sh/wiki/Help_centre/Upgrading_to_lazer#fnref-stable-chat
+</details>
 
 ## Support
 Please let me know if you have any questions - www.fanyat.su

@@ -1,3 +1,3 @@
-irc==20.3.0
+irc==20.3.1
 ossapi[async]==3.4.3
-twitchio==2.7.0
+twitchio==2.8.2

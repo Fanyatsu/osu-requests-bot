@@ -166,7 +166,7 @@ def format_beatmap_status(beatmap_status: RankStatus) -> str:
     return beatmap_status.name
 
 def get_mirror_url(beatmapset_id: int) -> str:
-    return f"https://api.chimu.moe/v1/download/{beatmapset_id}"
+    return f"https://catboy.best/d/{beatmapset_id}"
 
 def get_gamemode_prefix(gamemode: str) -> str:
     return OSU_GAMEMODES_PREFIXES.get(gamemode, "")

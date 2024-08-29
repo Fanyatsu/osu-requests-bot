@@ -77,7 +77,7 @@ class OsuAPIv2(OssapiAsync):
         except ValueError:
             return None
 
-    async def get_beatmap_star_rating(self, beatmap: Beatmap, mods: Mod) -> float:
+    async def get_beatmap_star_rating(self, beatmap: Beatmap, mods: Optional[Mod]) -> float:
         if not mods:
             return beatmap.difficulty_rating
 
